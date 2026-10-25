@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Scaler & My Recipes - Home Cook Recipe Scaler</title>
+    <meta name="description" content="A minimalist recipe scaler and formula manager for home cooks. Rescale servings, adjust units, and calculate recipe costs." />
+    <meta property="og:title" content="Simple Scaler & My Recipes - Home Cook Recipe Scaler" />
+    <meta property="og:description" content="A minimalist recipe scaler and formula manager for home cooks. Rescale servings, adjust units, and calculate recipe costs." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="[ID]_style.css" />
+  </head>
+  <body class="theme-light">
+    <!-- Abstract Shapes Background Layer -->
+    <div class="abstract-canvas" aria-hidden="true">
+      <div class="shape shape-circle-large shape-green"></div>
+      <div class="shape shape-circle-medium shape-red"></div>
+      <div class="shape shape-polygon shape-green-soft"></div>
+      <div class="abstract-grid"></div>
+    </div>
+
+    <!-- Fullscreen Initial Onboarding Screen (Abstract Back, Obscures App) -->
+    <div id="initial-onboarding-screen" class="onboarding-fullscreen hidden" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      <div class="onboarding-card">
+        <div class="onboarding-badge">
+          <svg class="icon-svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+            <path d="M7 21h10"></path>
+            <path d="M12 3v18"></path>
+            <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+          </svg>
+        </div>
+        <h1 id="onboarding-title" class="onboarding-title">Simple Scaler</h1>
+        <p class="onboarding-subtitle">Precision recipe scaling and formula management for home cooks.</p>
+
+        <form id="onboarding-form" class="onboarding-form" novalidate>
+          <div class="form-group">
+            <label for="onboarding-name-input" class="field-label">What is your name?</label>
+            <input type="text" id="onboarding-name-input" class="text-input" placeholder="e.g. Alex" maxlength="40" autocomplete="name" required />
+            <span id="onboarding-error-msg" class="error-text hidden" role="alert">Please enter your name to proceed</span>
+          </div>
+
+          <div class="onboarding-actions">
+            <button type="button" id="onboarding-skip-btn" class="btn btn-ghost">Continue as Guest</button>
+            <button type="submit" id="onboarding-submit-btn" class="btn btn-green">Enter Scaler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Name Modal -->
+    <div id="edit-name-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="edit-name-title">
+      <div class="modal-card">
+        <h2 id="edit-name-title" class="modal-title">Edit Name</h2>
+        <p class="modal-desc">Update your display name across your recipes and workspace.</p>
+        <div class="form-group">
+          <label for="edit-name-input" class="field-label">Display Name</label>
+          <input type="text" id="edit-name-input" class="text-input" placeholder="Enter name" maxlength="40" />
+          <span id="edit-name-error" class="error-text hidden" role="alert"></span>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="edit-name-cancel-btn" class="btn btn-ghost">Cancel</button>
+          <button type="button" id="edit-name-save-btn" class="btn btn-green">Save Name</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Menu Modal -->
+    <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-card modal-card-wide">
+        <div class="modal-header-row">
+          <h2 id="settings-title" class="modal-title">Settings</h2>
+          <button type="button" id="settings-close-x-btn" class="btn-close" aria-label="Close settings">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="settings-sections">
+          <div class="setting-item">
+            <div>
+              <span class="setting-label">Display Name</span>
+              <span class="setting-subtext">Personalized kitchen profile name</span>
+            </div>
+            <div class="setting-input-wrap">
+              <input type="text" id="settings-name-input" class="text-input input-compact" placeholder="Name" maxlength="40" />
+            </div>
+          </div>
+
+          <!-- Color Palette Themes -->
+          <div class="setting-item setting-item-column">
+            <div>
+              <span class="setting-label">Color Themes</span>
+              <span class="setting-subtext">Select an aesthetic palette for your kitchen interface</span>
+            </div>
+            <div class="color-themes-grid" role="group" aria-label="Color Themes">
+              <button type="button" class="theme-color-btn active" data-theme="emerald" title="Emerald Basil (Classic)">
+                <span class="color-swatch-circle" style="background: #1e7e48;"></span>
+                <span class="color-theme-label">Emerald</span>
+              </button>
+              <button type="button" class="theme-color-btn" data-theme="crimson" title="Crimson Bistro">
+                <span class="color-swatch-circle" style="background: #c0262d;"></span>
+                <span class="color-theme-label">Crimson</span>
+              </button>
+              <button type="button" class="theme-color-btn" data-theme="terracotta" title="Terracotta Amber">
+                <span class="color-swatch-circle" style="background: #c25e24;"></span>
+                <span class="color-theme-label">Terracotta</span>
+              </button>
+              <button type="button" class="theme-color-btn" data-theme="slate" title="Nordic Slate">
+                <span class="color-swatch-circle" style="background: #2b5a84;"></span>
+                <span class="color-theme-label">Nordic</span>
+              </button>
+              <button type="button" class="theme-color-btn" data-theme="olive" title="Tuscan Olive">
+                <span class="color-swatch-circle" style="background: #4e6e2b;"></span>
+                <span class="color-theme-label">Olive</span>
+              </button>
+              <button type="button" class="theme-color-btn" data-theme="dark" title="Dark Slate">
+                <span class="color-swatch-circle" style="background: #151b18;"></span>
+                <span class="color-theme-label">Dark Slate</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <span class="setting-label">Display Mode</span>
+              <span class="setting-subtext">Toggle between light parchment and dark mode</span>
+            </div>
+            <button type="button" id="settings-theme-toggle-btn" class="btn btn-sm btn-outline">
+              <span id="settings-theme-label">Switch to Dark Mode</span>
+            </button>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <span class="setting-label">Currency Symbol</span>
+              <span class="setting-subtext">Used for ingredient pricing calculations</span>
+            </div>
+            <select id="settings-currency-select" class="select-input select-sm">
+              <option value="$" selected>USD ($)</option>
+              <option value="₹">INR (₹)</option>
+              <option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option>
+              <option value="C$">CAD (C$)</option>
+              <option value="¥">JPY/CNY (¥)</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <span class="setting-label">Kitchen Fraction Notation</span>
+              <span class="setting-subtext">Show cup/spoon fractions (e.g. 1 1/2) alongside decimals</span>
+            </div>
+            <select id="settings-fractions-select" class="select-input select-sm">
+              <option value="enabled" selected>Enabled (Recommended)</option>
+              <option value="disabled">Decimals Only</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <div>
+              <span class="setting-label">Dismissed Notice Banners</span>
+              <span class="setting-subtext">Restore welcome and pricing tip banners</span>
+            </div>
+            <button type="button" id="settings-reset-banner-btn" class="btn btn-sm btn-ghost">
+              Restore Banners
+            </button>
+          </div>
+
+          <div class="setting-item setting-danger">
+            <div>
+              <span class="setting-label">Reset Local Data</span>
+              <span class="setting-subtext">Clear saved custom recipes and restore factory defaults</span>
+            </div>
+            <button type="button" id="settings-reset-data-btn" class="btn btn-sm btn-danger">
+              Reset All Data
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="settings-save-btn" class="btn btn-green">Save Settings</button>
+          <button type="button" id="settings-close-btn" class="btn btn-outline">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredient Picker Modal (Searchable Whole Thing to Select Ingredients) -->
+    <div id="ingredient-picker-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="picker-modal-title">
+      <div class="modal-card modal-card-picker">
+        <div class="modal-header-row">
+          <div>
+            <h2 id="picker-modal-title" class="modal-title">Select Ingredient from Pantry</h2>
+            <p class="modal-desc">Search and filter ingredients to add directly to your recipe formula.</p>
+          </div>
+          <button type="button" id="picker-close-x-btn" class="btn-close" aria-label="Close picker">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Live Search Bar -->
+        <div class="picker-search-bar">
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="picker-search-input" class="text-input picker-search-field" placeholder="Search ingredients (e.g. Flour, Garlic, Mozzarella)..." autocomplete="off" />
+          <button type="button" id="picker-search-clear-btn" class="btn-clear-search hidden" aria-label="Clear search">✕</button>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="picker-categories-row" role="tablist" aria-label="Ingredient Categories">
+          <button type="button" class="picker-cat-btn active" data-cat="all">All</button>
+          <button type="button" class="picker-cat-btn" data-cat="baking">Baking &amp; Grains</button>
+          <button type="button" class="picker-cat-btn" data-cat="produce">Produce</button>
+          <button type="button" class="picker-cat-btn" data-cat="dairy">Dairy &amp; Eggs</button>
+          <button type="button" class="picker-cat-btn" data-cat="protein">Proteins</button>
+          <button type="button" class="picker-cat-btn" data-cat="seasoning">Seasonings &amp; Oils</button>
+        </div>
+
+        <!-- Scrollable Ingredients Grid -->
+        <div id="picker-ingredients-grid" class="picker-grid">
+          <!-- Populated by script.js -->
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="picker-footer">
+          <span id="picker-results-count" class="picker-count-text">Showing 23 ingredients</span>
+          <button type="button" id="picker-cancel-btn" class="btn btn-outline btn-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Application Shell -->
+    <div id="app-shell" class="app-layout">
+      <!-- App Header -->
+      <header class="app-header">
+        <div class="header-container">
+          <!-- Logo & Brand -->
+          <div class="brand-group" id="header-logo-home" role="button" tabindex="0" title="Return to Dashboard">
+            <div class="brand-symbol" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="M7 21h10"></path>
+                <path d="M12 3v18"></path>
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+              </svg>
+            </div>
+            <div>
+              <span class="brand-name">Simple Scaler</span>
+              <span class="brand-tag">Precision Kitchen Tool</span>
+            </div>
+          </div>
+
+          <!-- Navigation Pills -->
+          <nav class="header-nav" aria-label="Main Navigation">
+            <button type="button" id="nav-home-btn" class="nav-btn active">
+              <span>Dashboard</span>
+            </button>
+            <button type="button" id="nav-scaler-btn" class="nav-btn">
+              <span>Simple Scaler</span>
+            </button>
+            <button type="button" id="nav-recipes-btn" class="nav-btn">
+              <span>My Recipes</span>
+              <span id="header-recipe-count" class="nav-badge">6</span>
+            </button>
+          </nav>
+
+          <!-- User Dropdown & Controls -->
+          <div class="header-controls">
+            <!-- Theme Toggle -->
+            <button type="button" id="quick-theme-toggle" class="btn-icon" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+              <svg id="theme-icon-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+              </svg>
+            </button>
+
+            <!-- User Menu with Dropdown (Name cannot be edited without dropdown menu) -->
+            <div class="user-menu-wrapper">
+              <button type="button" id="user-menu-btn" class="user-menu-btn" aria-haspopup="true" aria-expanded="false">
+                <span id="user-menu-name" class="user-display-name">Alex</span>
+                <svg class="dropdown-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              <div id="user-dropdown-menu" class="user-dropdown hidden" role="menu">
+                <div class="dropdown-header">
+                  <span class="dropdown-header-title">Kitchen Profile</span>
+                  <span id="dropdown-user-full" class="dropdown-header-sub">Alex</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <button type="button" id="menu-edit-name-btn" class="dropdown-item" role="menuitem">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  <span>Edit Name</span>
+                </button>
+                <button type="button" id="menu-settings-btn" class="dropdown-item" role="menuitem">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                  <span>Settings</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Body Views -->
+      <main class="main-viewport">
+        <!-- ============================================== -->
+        <!-- VIEW 1: HOME DASHBOARD (2 GIANT BOXES) -->
+        <!-- ============================================== -->
+        <section id="view-home" class="view-panel active" aria-labelledby="home-hero-title">
+          <!-- Welcome Entry Banner with Ignore Button -->
+          <div id="welcome-entry-banner" class="welcome-banner">
+            <div class="welcome-banner-content">
+              <span class="welcome-banner-title">Welcome to Simple Scaler</span>
+              <span class="welcome-banner-text">Precision ratio scaling, searchable ingredient pantry, and formula management. You can scale portions, search between pantry ingredients, or configure custom prices.</span>
+            </div>
+            <button type="button" id="ignore-welcome-banner-btn" class="btn-ignore-welcome" title="Dismiss welcome message">Ignore</button>
+          </div>
+
+          <div class="dashboard-hero">
+            <span class="hero-tag">Kitchen Workspace</span>
+            <h2 id="home-hero-title" class="hero-title">Select a Workspace</h2>
+            <p class="hero-subtitle">Scale portion counts with exact ratios or manage your recipe formula collection.</p>
+          </div>
+
+          <!-- 2 Giant Boxes -->
+          <div class="giant-boxes-grid">
+            <!-- Giant Box 1: Simple Scaler -->
+            <div id="giant-box-scaler" class="giant-card giant-card-green" role="button" tabindex="0">
+              <div class="giant-card-icon">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                  <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                  <path d="M7 21h10"></path>
+                  <path d="M12 3v18"></path>
+                  <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+                </svg>
+              </div>
+              <div class="giant-card-content">
+                <span class="giant-badge">Ratio Calculator</span>
+                <h3 class="giant-card-title">Simple Scaler</h3>
+                <p class="giant-card-desc">Enter your dish, base recipe servings, desired servings wanted, and ingredients to rescale measurements with fractional units and optional pricing.</p>
+              </div>
+              <div class="giant-card-footer">
+                <span class="giant-action-link">Open Simple Scaler</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Giant Box 2: My Recipes -->
+            <div id="giant-box-recipes" class="giant-card giant-card-red" role="button" tabindex="0">
+              <div class="giant-card-icon">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+                  <path d="M6 6h10"></path>
+                  <path d="M6 10h10"></path>
+                  <path d="M6 14h7"></path>
+                </svg>
+              </div>
+              <div class="giant-card-content">
+                <span class="giant-badge">Formula Collection</span>
+                <h3 class="giant-card-title">My Recipes</h3>
+                <p class="giant-card-desc">Browse curated kitchen formulas, create and store custom recipe compositions, and load any dish straight into the scaler with one click.</p>
+              </div>
+              <div class="giant-card-footer">
+                <span class="giant-action-link">Browse My Recipes</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: SIMPLE SCALER -->
+        <!-- ============================================== -->
+        <section id="view-scaler" class="view-panel hidden" aria-labelledby="scaler-title">
+          <!-- Back to Dashboard Bar -->
+          <div class="view-nav-strip">
+            <button type="button" id="scaler-back-home-btn" class="btn-back">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Dashboard</span>
+            </button>
+            <div class="view-breadcrumb">
+              <span>Home</span>
+              <span class="crumb-separator">/</span>
+              <span class="crumb-current">Simple Scaler</span>
+            </div>
+          </div>
+
+          <!-- Top Pantry Bar: Add New Ingredients -->
+          <div class="pantry-bar-card">
+            <div class="pantry-bar-header">
+              <div class="pantry-title-group">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <span class="pantry-title">Pantry Registry: Create New Ingredient</span>
+              </div>
+              <span class="pantry-subtitle">Add custom ingredients once to make them selectable across all recipes</span>
+            </div>
+            <form id="new-ingredient-form" class="pantry-form" novalidate>
+              <div class="pantry-inputs-row">
+                <div class="pantry-field flex-2">
+                  <label for="new-ing-name" class="field-label-xs">Ingredient Name</label>
+                  <input type="text" id="new-ing-name" class="text-input input-compact" placeholder="e.g. Bread Flour" required />
+                </div>
+                <div class="pantry-field flex-1">
+                  <label for="new-ing-unit" class="field-label-xs">Default Unit</label>
+                  <select id="new-ing-unit" class="select-input select-compact">
+                    <option value="cups" selected>cups</option>
+                    <option value="tbsp">tbsp</option>
+                    <option value="tsp">tsp</option>
+                    <option value="grams">grams (g)</option>
+                    <option value="kg">kg</option>
+                    <option value="ml">ml</option>
+                    <option value="liters">liters (L)</option>
+                    <option value="oz">oz</option>
+                    <option value="lbs">lbs</option>
+                    <option value="pieces">pieces</option>
+                    <option value="pinch">pinch</option>
+                  </select>
+                </div>
+                <div class="pantry-field flex-1">
+                  <label for="new-ing-price" class="field-label-xs">Unit Price (Optional $)</label>
+                  <input type="number" id="new-ing-price" class="number-input input-compact" min="0" step="0.01" placeholder="e.g. 1.20" />
+                </div>
+                <div class="pantry-field-btn">
+                  <button type="submit" id="add-pantry-ing-btn" class="btn btn-green btn-compact">
+                    + Add to Pantry
+                  </button>
+                </div>
+              </div>
+              <span id="new-ing-error" class="error-text hidden" role="alert"></span>
+            </form>
+          </div>
+
+          <!-- Scaler Two-Column Grid -->
+          <div class="scaler-grid">
+            <!-- Left Column: Scaler Form -->
+            <div class="card form-panel">
+              <form id="scaler-main-form" novalidate>
+                <!-- Section 1: Dish Name & Servings -->
+                <div class="form-block">
+                  <div class="block-header">
+                    <span class="block-index">1</span>
+                    <h3 class="block-title">Recipe Details & Servings</h3>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="dish-name" class="field-label">Dish Name</label>
+                    <input type="text" id="dish-name" class="text-input" placeholder="e.g. Margherita Pizza" value="Classic Margherita Pizza" required />
+                    <span id="dish-name-error" class="error-text hidden" role="alert"></span>
+                  </div>
+
+                  <div class="servings-pair-grid">
+                    <div class="form-group">
+                      <label for="servings-makes" class="field-label">
+                        Recipe Makes
+                        <span class="label-aside">(Base Servings)</span>
+                      </label>
+                      <input type="number" id="servings-makes" class="number-input" min="0.1" step="any" placeholder="e.g. 2" value="2" required />
+                      <span id="servings-makes-error" class="error-text hidden" role="alert"></span>
+                    </div>
+
+                    <div class="servings-connector">➔</div>
+
+                    <div class="form-group">
+                      <label for="servings-wanted" class="field-label">
+                        Servings Wanted
+                        <span class="label-aside">(Target Servings)</span>
+                      </label>
+                      <input type="number" id="servings-wanted" class="number-input" min="0.1" step="any" placeholder="e.g. 6" value="6" required />
+                      <span id="servings-wanted-error" class="error-text hidden" role="alert"></span>
+                    </div>
+                  </div>
+
+                  <!-- Multipliers Row -->
+                  <div class="multipliers-bar">
+                    <span class="multipliers-caption">Quick Multiplier:</span>
+                    <div class="multipliers-list">
+                      <button type="button" class="multiplier-chip" data-factor="0.5">0.5x</button>
+                      <button type="button" class="multiplier-chip" data-factor="1">1x</button>
+                      <button type="button" class="multiplier-chip" data-factor="2">2x</button>
+                      <button type="button" class="multiplier-chip active" data-factor="3">3x</button>
+                      <button type="button" class="multiplier-chip" data-factor="4">4x</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section 2: Ingredients with Clean Dropdown Menu -->
+                <div class="form-block">
+                  <div class="block-header block-header-split">
+                    <div class="block-title-group">
+                      <span class="block-index">2</span>
+                      <h3 class="block-title">Three Ingredients & Amounts</h3>
+                    </div>
+                    <button type="button" id="add-ingredient-row-btn" class="btn btn-sm btn-outline">
+                      + Add Ingredient
+                    </button>
+                  </div>
+
+                  <!-- Ingredients Container (Default 3 items) -->
+                  <div id="ingredients-container" class="ingredients-table">
+                    <!-- Rows generated via script.js -->
+                  </div>
+                </div>
+
+                <!-- Price Notice Banner with Ignore Button -->
+                <div id="price-notice-banner" class="notice-banner">
+                  <div class="notice-text-group">
+                    <span class="notice-title">Optional Ingredient Pricing</span>
+                    <span class="notice-desc">Enter unit prices for each ingredient to estimate total scaled costs. If any ingredient has no price, total cost displays as "Price not available".</span>
+                  </div>
+                  <button type="button" id="ignore-price-banner-btn" class="btn-ignore" title="Dismiss this notice">
+                    Ignore
+                  </button>
+                </div>
+
+                <!-- Global Validation Alert -->
+                <div id="scaler-validation-alert" class="alert-banner error-banner hidden" role="alert">
+                  <span id="scaler-validation-text">Please correct the highlighted inputs above. Recipe servings and ingredient amounts must be positive numbers greater than 0.</span>
+                </div>
+
+                <!-- Actions Bar -->
+                <div class="form-buttons-row">
+                  <button type="button" id="scale-action-btn" class="btn btn-green btn-large">
+                    Scale Recipe
+                  </button>
+                  <button type="button" id="save-recipe-action-btn" class="btn btn-outline" title="Save this composition into My Recipes">
+                    Save to My Recipes
+                  </button>
+                  <button type="button" id="reset-scaler-action-btn" class="btn btn-ghost" title="Clear all fields">
+                    Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Right Column: Scaled Results Card -->
+            <div id="results-card" class="card results-panel" aria-live="polite">
+              <div class="results-top">
+                <div class="results-badge-row">
+                  <span class="status-pill status-pill-green">Rescaled</span>
+                  <span id="results-multiplier-pill" class="status-pill status-pill-neutral">3x Scale</span>
+                </div>
+                <h3 id="results-dish-name" class="results-title">Classic Margherita Pizza</h3>
+                <div class="results-meta-strip">
+                  <div class="meta-cell">
+                    <span class="meta-sub">Original Servings</span>
+                    <strong id="results-original-servings" class="meta-main">2</strong>
+                  </div>
+                  <div class="meta-divider">➔</div>
+                  <div class="meta-cell highlight-cell">
+                    <span class="meta-sub">Target Servings</span>
+                    <strong id="results-target-servings" class="meta-main text-green">6</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Scaled Ingredients Table -->
+              <div class="results-content">
+                <h4 class="results-section-heading">Rescaled Ingredients</h4>
+                <div id="results-ingredients-list" class="results-list">
+                  <!-- Rendered via script.js -->
+                </div>
+
+                <!-- Fraction Measurement Reference -->
+                <div class="prep-reference-box">
+                  <span class="ref-title">Kitchen Fraction Equivalents</span>
+                  <span class="ref-text">Decimal measurements include common kitchen cup/spoon fractions for practical pantry measuring.</span>
+                </div>
+
+                <!-- Pricing Output: Optional & "Price not available" rule -->
+                <div class="pricing-card">
+                  <div class="pricing-header">
+                    <div>
+                      <span class="pricing-label">Total Recipe Cost</span>
+                      <span class="pricing-sublabel">Scaled ingredient price total</span>
+                    </div>
+                    <div id="pricing-value-box">
+                      <span id="results-cost-value" class="price-figure">Price not available</span>
+                    </div>
+                  </div>
+                  <div id="pricing-note-text" class="pricing-explanation">
+                    Optional: Specify prices for all ingredients to display total cost.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Results Actions -->
+              <div class="results-actions">
+                <button type="button" id="copy-scaled-btn" class="btn btn-sm btn-outline">
+                  Copy Ingredients
+                </button>
+                <button type="button" id="print-scaled-btn" class="btn btn-sm btn-ghost">
+                  Print Formula
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 3: MY RECIPES -->
+        <!-- ============================================== -->
+        <section id="view-recipes" class="view-panel hidden" aria-labelledby="recipes-title">
+          <div class="view-nav-strip">
+            <button type="button" id="recipes-back-home-btn" class="btn-back">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Dashboard</span>
+            </button>
+            <div class="view-breadcrumb">
+              <span>Home</span>
+              <span class="crumb-separator">/</span>
+              <span class="crumb-current">My Recipes</span>
+            </div>
+          </div>
+
+          <!-- Section Header & Filter Tabs -->
+          <div class="recipes-view-header">
+            <div>
+              <h2 id="recipes-title" class="section-title">My Recipes &amp; Presets</h2>
+              <p class="section-desc">Select any preset or custom recipe to load its exact measurements into the Simple Scaler.</p>
+            </div>
+            <div class="filter-group" role="tablist" aria-label="Recipe Filter Options">
+              <button type="button" id="filter-tab-all" class="filter-btn active">All (<span id="count-all">6</span>)</button>
+              <button type="button" id="filter-tab-curated" class="filter-btn">Curated Classics (6)</button>
+              <button type="button" id="filter-tab-custom" class="filter-btn">Custom (<span id="count-custom">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- Recipe Cards Grid -->
+          <div id="recipes-grid-container" class="recipes-cards-grid">
+            <!-- Rendered by script.js -->
+          </div>
+        </section>
+      </main>
+
+      <!-- App Footer -->
+      <footer class="app-footer">
+        <div class="footer-inner">
+          <div class="footer-meta">
+            <span class="footer-title">Simple Scaler &amp; My Recipes</span>
+            <span class="footer-desc">Vanilla Architecture • Offline LocalStorage Storage</span>
+          </div>
+          <div class="footer-status">
+            <span class="status-indicator-dot"></span>
+            <span>Local Storage Active</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-element" class="toast-popup hidden" role="status" aria-live="polite">
+      <span id="toast-message-text">Notification</span>
+    </div>
+
+    <!-- Offline Scripts -->
+    <script src="script.js"></script>
+    <script src="[ID]_script.js"></script>
+  </body>
+</html>
